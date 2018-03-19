@@ -910,6 +910,13 @@
               <ownedParameter xmi:id="_LVRqACYxEeiUw-c8BTGpHw" name="Parameter1" type="_1Jnj_CR7EeSwctwoog9-Rw" direction="return"/>
             </ownedOperation>
             <ownedOperation xmi:id="_EBhdoCYzEeiUw-c8BTGpHw" name="Response"/>
+            <ownedOperation xmi:id="_jxPKsCukEeilXtBCSVKIAA" name="createResponse" isStatic="true">
+              <ownedParameter xmi:id="_p-DSQCukEeilXtBCSVKIAA" name="status" type="_1JnkAiR7EeSwctwoog9-Rw"/>
+              <ownedParameter xmi:id="_tm0IsCukEeilXtBCSVKIAA" name="message">
+                <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+              </ownedParameter>
+              <ownedParameter xmi:id="_xxFwwCukEeilXtBCSVKIAA" name="Parameter1" type="_1Jnj_CR7EeSwctwoog9-Rw" direction="return"/>
+            </ownedOperation>
           </packagedElement>
           <packagedElement xmi:type="uml:Class" xmi:id="_1Jnj_yR7EeSwctwoog9-Rw" name="Application">
             <ownedComment xmi:id="_1JnkACR7EeSwctwoog9-Rw" annotatedElement="_1Jnj_yR7EeSwctwoog9-Rw">
@@ -1304,4 +1311,5 @@
   <BRAID:DynamicDomain xmi:id="_yJtbciiLEeimMoEEzF58hA" base_Enumeration="_1Jnj-iR7EeSwctwoog9-Rw"/>
   <BRAID:DynamicDomain xmi:id="_yJtbcyiLEeimMoEEzF58hA" base_Enumeration="_1JnkAiR7EeSwctwoog9-Rw"/>
   <BRAID:DynamicDomain xmi:id="_yJtbdCiLEeimMoEEzF58hA" base_Enumeration="_1IbRICR7EeSwctwoog9-Rw"/>
+  <BRAID:BOMEntityMember xmi:id="_nHhKACukEeilXtBCSVKIAA" base_Operation="_jxPKsCukEeilXtBCSVKIAA"/>
 </xmi:XMI>

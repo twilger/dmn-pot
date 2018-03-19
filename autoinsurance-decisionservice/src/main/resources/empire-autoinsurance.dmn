@@ -217,7 +217,12 @@
     </semantic:itemComponent>
   </semantic:itemDefinition>
   <semantic:itemDefinition label="StatusAndMessage" name="StatusAndMessage">
-    <semantic:itemComponent id="_622c5674-f7fb-4ef5-9c22-692ba0378c09" name="status"/>
+    <semantic:itemComponent id="_622c5674-f7fb-4ef5-9c22-692ba0378c09" name="status">
+      <semantic:typeRef>feel:string</semantic:typeRef>
+      <semantic:allowedValues triso:constraintsType="enumeration">
+        <semantic:text>"Accepted","ProcessManually","Refused"</semantic:text>
+      </semantic:allowedValues>
+    </semantic:itemComponent>
     <semantic:itemComponent id="_62724d75-586a-451d-acf5-5637ca1b9e14" name="message">
       <semantic:typeRef>feel:string</semantic:typeRef>
     </semantic:itemComponent>
@@ -232,9 +237,9 @@
     </semantic:knowledgeRequirement>
     <semantic:literalExpression id="_9d0e9c72-07c5-4955-a397-eebe8f948efe">
       <semantic:text>if count(Application.nonPrimaryDrivers) + 1 &gt; 6 then
-    Create Response("Reject", "Too many drivers")
+    Create Response("Refused", "Too many drivers")
 else
-    Create Response("Accepted", null)</semantic:text>
+    Create Response("Accepted", "None")</semantic:text>
     </semantic:literalExpression>
   </semantic:decision>
   <semantic:businessKnowledgeModel id="_8d59ebeb-eb96-476a-b15f-cd457d450d1d" name="Driving History">
@@ -588,7 +593,7 @@ else
                 <semantic:text>-</semantic:text>
               </semantic:inputEntry>
               <semantic:inputEntry id="_423a8a5c-e6b1-4103-b515-f7c29fd0fc38">
-                <semantic:text>1</semantic:text>
+                <semantic:text>&gt;= 1</semantic:text>
               </semantic:inputEntry>
               <semantic:outputEntry id="_5bceeec9-2d99-4bc7-ace3-f2f464f4c185">
                 <semantic:text>"Refused"</semantic:text>
@@ -614,7 +619,7 @@ else
                 <semantic:text>-</semantic:text>
               </semantic:inputEntry>
               <semantic:inputEntry id="_d73a96fc-d6f2-4e36-baa1-75e62557a885">
-                <semantic:text>-</semantic:text>
+                <semantic:text>&lt; 1</semantic:text>
               </semantic:inputEntry>
               <semantic:outputEntry id="_19d41abb-2557-4373-8f13-43def54b7fdd">
                 <semantic:text>"Accepted"</semantic:text>
@@ -663,9 +668,6 @@ else
   <semantic:decision id="_ce0eca20-206e-4826-8a78-a065a9dceef9" name="All Drivers Eligible">
     <semantic:variable id="_7f51b023-9551-42b2-a985-2dfa91087888" name="All Drivers Eligible" typeRef="Response"/>
     <semantic:informationRequirement>
-      <semantic:requiredDecision href="#_9b2d54d4-d4f9-485c-86e3-a5255523a6f6"/>
-    </semantic:informationRequirement>
-    <semantic:informationRequirement>
       <semantic:requiredInput href="#_21737b51-77ef-4135-adba-c79c722eb1e2"/>
     </semantic:informationRequirement>
     <semantic:knowledgeRequirement>
@@ -690,21 +692,20 @@ else
       <semantic:contextEntry>
         <semantic:variable id="undefined" name="primary driver eligible" typeRef="Response"/>
         <semantic:literalExpression id="_9df53a6c-296f-478a-a979-9b9385aadc48">
-          <semantic:text>concatenate(Meets Age Requirements(primary driver, Application),
-    Driving History(primary driver, Application))</semantic:text>
+          <semantic:text>Combine Responses([Meets Age Requirements(primary driver, Application), Driving History(primary driver, Application)])</semantic:text>
         </semantic:literalExpression>
       </semantic:contextEntry>
       <semantic:contextEntry>
-        <semantic:variable id="_ab992800-a8d4-4845-9bd0-bf17b62abaac" name="secondary drivers eligible" typeRef="Response"/>
-        <semantic:literalExpression id="_1598dd99-2c1e-4316-9de0-63a1e509ec03">
-          <semantic:text>for driver in Application.nonPrimaryDrivers
-    return concatenate(Meets Age Requirements(driver, Application), Driving History(driver, Application))</semantic:text>
+        <semantic:variable id="_21e47bac-e8fc-4941-9de4-c0cf64d3d041" name="secondary drivers eligible" typeRef="Response"/>
+        <semantic:literalExpression id="_cd9f1e21-daf0-4691-9947-abf0049722fc">
+          <semantic:text>for driver in Application.nonPrimaryDrivers 
+    return Combine Responses([Meets Age Requirements(primary driver, Application), Driving History(primary driver, Application)])</semantic:text>
         </semantic:literalExpression>
       </semantic:contextEntry>
       <semantic:contextEntry>
-        <semantic:variable id="undefined" name="all drivers eligible" typeRef="Response"/>
-        <semantic:literalExpression id="_bd3f4a38-770b-45ce-98fb-9c5d09862aa8">
-          <semantic:text>Combine Responses(concatenate(primary driver eligible, secondary drivers eligible))</semantic:text>
+        <semantic:variable id="_a9279197-da35-44c5-8d79-99bf471fabb8" name="all drivers eligible" typeRef="Response"/>
+        <semantic:literalExpression id="_73b32426-6e96-4caf-a63e-588b4018a03e">
+          <semantic:text>Combine Responses(append(secondary drivers eligible, primary driver eligible))</semantic:text>
         </semantic:literalExpression>
       </semantic:contextEntry>
       <semantic:contextEntry>
@@ -733,7 +734,7 @@ else
                 <semantic:text>age</semantic:text>
               </semantic:inputExpression>
             </semantic:input>
-            <semantic:output id="_745b5149-d7c3-4b82-abcd-4b49afa0e4b2" name="Status" typeRef="feel:string">
+            <semantic:output id="_745b5149-d7c3-4b82-abcd-4b49afa0e4b2" name="status" typeRef="feel:string">
               <semantic:outputValues triso:constraintsType="enumeration">
                 <semantic:text>"Accepted","ProcessManually","Refused"</semantic:text>
               </semantic:outputValues>
@@ -741,7 +742,7 @@ else
                 <semantic:text>"Accepted"</semantic:text>
               </semantic:defaultOutputEntry>
             </semantic:output>
-            <semantic:output id="_a980c499-034a-41c3-a1c2-6c421197fa0c" name="Message" typeRef="feel:string"/>
+            <semantic:output id="_a980c499-034a-41c3-a1c2-6c421197fa0c" name="message" typeRef="feel:string"/>
             <semantic:rule id="_7930bd31-a365-41e9-97ee-6bb55d58e3d2">
               <semantic:inputEntry id="_dbc30900-01af-476b-bf5c-1d04c7f70e6c">
                 <semantic:text>&lt; 18</semantic:text>
@@ -750,7 +751,7 @@ else
                 <semantic:text>"Refused"</semantic:text>
               </semantic:outputEntry>
               <semantic:outputEntry id="_a76b2d25-fd40-4158-bd48-bf708aa0b885">
-                <semantic:text>"At least one driver did not meet the age requirements for insurance"</semantic:text>
+                <semantic:text>"At least on driver was too young"</semantic:text>
               </semantic:outputEntry>
             </semantic:rule>
             <semantic:rule id="_ec6b35de-5dc4-4994-94ef-5630f4cb9e20">
@@ -758,10 +759,21 @@ else
                 <semantic:text>[18..80]</semantic:text>
               </semantic:inputEntry>
               <semantic:outputEntry id="_97dd7952-bf5a-4e27-851c-e5cd5df02000">
-                <semantic:text>"Refused"</semantic:text>
+                <semantic:text>"Accepted"</semantic:text>
               </semantic:outputEntry>
               <semantic:outputEntry id="_2b1dd984-01c4-447b-8132-b1a5c4240fe3">
-                <semantic:text>"At least one driver did not meet the age requirements for insurance"</semantic:text>
+                <semantic:text>"None"</semantic:text>
+              </semantic:outputEntry>
+            </semantic:rule>
+            <semantic:rule id="_a6b7bd67-da74-4043-b1c2-9d6efe172091">
+              <semantic:inputEntry id="_6e74be8e-e636-4a14-bb91-5bf891ca00ab">
+                <semantic:text>&gt; 80</semantic:text>
+              </semantic:inputEntry>
+              <semantic:outputEntry id="_3063870a-2a2d-46ad-bf95-8ad7ecc024ff">
+                <semantic:text>"Refused"</semantic:text>
+              </semantic:outputEntry>
+              <semantic:outputEntry id="_1fdf67f4-d9fc-4d89-92ff-9d296048c325">
+                <semantic:text>"At least one driver was too old"</semantic:text>
               </semantic:outputEntry>
             </semantic:rule>
           </semantic:decisionTable>
@@ -792,7 +804,7 @@ else
         <semantic:contextEntry>
           <semantic:variable id="_faa0d3f0-64a7-4bfa-86f4-8c6f0834cd7c" name="age" typeRef="feel:number"/>
           <semantic:literalExpression id="_af1d6949-86a0-4da5-8b8d-1a3cb0a498ad">
-            <semantic:text>years and months duration(evaluationDate - dateOfBirth) / duration("P1Y")</semantic:text>
+            <semantic:text>years and months duration(dateOfBirth, evaluationDate) / duration("P1Y")</semantic:text>
           </semantic:literalExpression>
         </semantic:contextEntry>
         <semantic:contextEntry>
@@ -805,180 +817,39 @@ else
     <semantic:variable id="_e531575c-7781-48dd-9545-20dd7b63def4" name="Calculate Age" typeRef="feel:number"/>
   </semantic:businessKnowledgeModel>
   <semantic:businessKnowledgeModel id="_2376398c-3499-4282-89e1-7969f36fd1b8" name="Create Response">
-    <semantic:encapsulatedLogic xmlns:drools="http://www.drools.org/kie/dmn/1.1" drools:kind="F" id="_990b547e-141a-4f21-8e20-195a2d431435">
+    <semantic:encapsulatedLogic xmlns:drools="http://www.drools.org/kie/dmn/1.1" drools:kind="J" id="_990b547e-141a-4f21-8e20-195a2d431435">
       <semantic:formalParameter id="_66c70eff-8207-430a-ac10-2d56e6164a11" name="status" typeRef="feel:string"/>
       <semantic:formalParameter id="_b7886969-eca0-4db1-a4f4-505c49330f1c" name="message" typeRef="feel:string"/>
-      <semantic:context id="_7c30f057-bdf4-4467-8b75-69079dbfffd4">
+      <semantic:context>
         <semantic:contextEntry>
-          <semantic:variable id="_0b4542d5-05b6-4feb-b11a-4cd2581df0f1" name="response" typeRef="Response"/>
-          <semantic:context id="_b4b19628-0b70-42f5-9b42-af5c05b0a337">
-            <semantic:contextEntry>
-              <semantic:variable id="undefined" name="status" typeRef="feel:string"/>
-              <semantic:literalExpression id="_12e45c1d-4672-4e3d-a72f-d579d7c9b95c">
-                <semantic:text>status</semantic:text>
-              </semantic:literalExpression>
-            </semantic:contextEntry>
-            <semantic:contextEntry>
-              <semantic:variable id="undefined" name="messages" typeRef="feel:string"/>
-              <semantic:literalExpression id="_f6e40a14-8065-449a-9e30-f4ae22108610">
-                <semantic:text>[message]</semantic:text>
-              </semantic:literalExpression>
-            </semantic:contextEntry>
-            <semantic:contextEntry>
-              <semantic:variable id="undefined" name="proposedAutoInsurancePolicy" typeRef="AutoInsurance"/>
-              <semantic:context id="_ebfa01a6-c4d0-4914-8bb6-9941b3a3c7d3">
-                <semantic:contextEntry>
-                  <semantic:variable id="undefined" name="startDate" typeRef="feel:date"/>
-                  <semantic:literalExpression id="_a2c4ca33-5f60-44d6-b946-324aaa6ba55b">
-                    <semantic:text>null</semantic:text>
-                  </semantic:literalExpression>
-                </semantic:contextEntry>
-                <semantic:contextEntry>
-                  <semantic:variable id="undefined" name="totalPriceBeforeTax" typeRef="feel:number"/>
-                  <semantic:literalExpression id="_c9923ffe-3662-44fa-9fbc-f27948234477">
-                    <semantic:text>null</semantic:text>
-                  </semantic:literalExpression>
-                </semantic:contextEntry>
-                <semantic:contextEntry>
-                  <semantic:variable id="undefined" name="thirdPartyPriceBeforeTax" typeRef="feel:number"/>
-                  <semantic:literalExpression id="_79674186-65cf-407b-861c-64b3e02f3c77">
-                    <semantic:text>null</semantic:text>
-                  </semantic:literalExpression>
-                </semantic:contextEntry>
-                <semantic:contextEntry>
-                  <semantic:variable id="undefined" name="totalPrice" typeRef="feel:number"/>
-                  <semantic:literalExpression id="_23410053-5d13-44a1-a028-59d0a964f6f2">
-                    <semantic:text>null</semantic:text>
-                  </semantic:literalExpression>
-                </semantic:contextEntry>
-                <semantic:contextEntry>
-                  <semantic:variable id="undefined" name="thirdPartyMaxLiabilityAmount" typeRef="feel:number"/>
-                  <semantic:literalExpression id="_427d9830-0142-416d-b5c4-652836a46f5e">
-                    <semantic:text>null</semantic:text>
-                  </semantic:literalExpression>
-                </semantic:contextEntry>
-                <semantic:contextEntry>
-                  <semantic:literalExpression id="_7babd2eb-a147-43cb-b97d-f111d82eac8c">
-                    <semantic:text>null</semantic:text>
-                  </semantic:literalExpression>
-                </semantic:contextEntry>
-              </semantic:context>
-            </semantic:contextEntry>
-            <semantic:contextEntry>
-              <semantic:variable id="undefined" name="proposedCollisionInsurancePolicy" typeRef="CollisionInsurance"/>
-              <semantic:context id="_24a06328-c1f1-4f3b-8612-714fe3cf59ed">
-                <semantic:contextEntry>
-                  <semantic:variable id="undefined" name="autoInsurance" typeRef="AutoInsurance"/>
-                  <semantic:context id="_31cc2e09-e575-47e1-9b7e-b5e4f22eaf28">
-                    <semantic:contextEntry>
-                      <semantic:variable id="undefined" name="startDate" typeRef="feel:date"/>
-                      <semantic:literalExpression id="_970adaab-0208-4223-b180-8d4632d3453a">
-                        <semantic:text>null</semantic:text>
-                      </semantic:literalExpression>
-                    </semantic:contextEntry>
-                    <semantic:contextEntry>
-                      <semantic:variable id="undefined" name="totalPriceBeforeTax" typeRef="feel:number"/>
-                      <semantic:literalExpression id="_3ce1650d-2e62-45a9-9fdd-0297b4a2bdbb">
-                        <semantic:text>null</semantic:text>
-                      </semantic:literalExpression>
-                    </semantic:contextEntry>
-                    <semantic:contextEntry>
-                      <semantic:variable id="undefined" name="thirdPartyPriceBeforeTax" typeRef="feel:number"/>
-                      <semantic:literalExpression id="_eb45dbb7-5b76-408f-b6b2-9e508afee398">
-                        <semantic:text>null</semantic:text>
-                      </semantic:literalExpression>
-                    </semantic:contextEntry>
-                    <semantic:contextEntry>
-                      <semantic:variable id="undefined" name="totalPrice" typeRef="feel:number"/>
-                      <semantic:literalExpression id="_c5628974-3616-4df3-b3d4-3fc133ab3706">
-                        <semantic:text>null</semantic:text>
-                      </semantic:literalExpression>
-                    </semantic:contextEntry>
-                    <semantic:contextEntry>
-                      <semantic:variable id="undefined" name="thirdPartyMaxLiabilityAmount" typeRef="feel:number"/>
-                      <semantic:literalExpression id="_e2bda488-d401-4cae-8bbf-df6bc9c035b5">
-                        <semantic:text>null</semantic:text>
-                      </semantic:literalExpression>
-                    </semantic:contextEntry>
-                  </semantic:context>
-                </semantic:contextEntry>
-                <semantic:contextEntry>
-                  <semantic:variable id="undefined" name="collisionMaxAmountCovered" typeRef="feel:number"/>
-                  <semantic:literalExpression id="_231a3a51-d2d1-4539-b785-05b47688e3d9">
-                    <semantic:text>null</semantic:text>
-                  </semantic:literalExpression>
-                </semantic:contextEntry>
-                <semantic:contextEntry>
-                  <semantic:variable id="undefined" name="deductibleAmount" typeRef="feel:number"/>
-                  <semantic:literalExpression id="_6665a7b6-085a-483b-b6ae-72ef7c0531c5">
-                    <semantic:text>null</semantic:text>
-                  </semantic:literalExpression>
-                </semantic:contextEntry>
-                <semantic:contextEntry>
-                  <semantic:variable id="undefined" name="collisionPriceBeforeTax" typeRef="feel:number"/>
-                  <semantic:literalExpression id="_aae2c65c-2aa3-4a67-bfe6-04a5ba5e9912">
-                    <semantic:text>null</semantic:text>
-                  </semantic:literalExpression>
-                </semantic:contextEntry>
-                <semantic:contextEntry>
-                  <semantic:variable id="undefined" name="options" typeRef="Option"/>
-                  <semantic:context id="_4f5c22a9-6e25-4a6b-b90a-980f5444be53">
-                    <semantic:contextEntry>
-                      <semantic:variable id="undefined" name="option" typeRef="Option"/>
-                      <semantic:context id="_be79ba43-fbea-4635-97cd-a43a4d3d0b45">
-                        <semantic:contextEntry>
-                          <semantic:variable id="undefined" name="type" typeRef="feel:string"/>
-                          <semantic:literalExpression id="_27c2f6b0-7aca-4d94-9d8a-8f2874a7ed85">
-                            <semantic:text>null</semantic:text>
-                          </semantic:literalExpression>
-                        </semantic:contextEntry>
-                        <semantic:contextEntry>
-                          <semantic:variable id="undefined" name="maxLiability" typeRef="feel:number"/>
-                          <semantic:literalExpression id="_a00f6169-e189-4385-9187-f3788b8509f9">
-                            <semantic:text>null</semantic:text>
-                          </semantic:literalExpression>
-                        </semantic:contextEntry>
-                        <semantic:contextEntry>
-                          <semantic:literalExpression id="_eef8f45c-55eb-4e1a-b7ae-ed45b4dd6d2e">
-                            <semantic:text>null</semantic:text>
-                          </semantic:literalExpression>
-                        </semantic:contextEntry>
-                      </semantic:context>
-                    </semantic:contextEntry>
-                    <semantic:contextEntry>
-                      <semantic:variable id="undefined" name="priceBeforeTax" typeRef="feel:number"/>
-                      <semantic:literalExpression id="_22b59b9e-1f11-4097-bd0f-45da69139454">
-                        <semantic:text>null</semantic:text>
-                      </semantic:literalExpression>
-                    </semantic:contextEntry>
-                    <semantic:contextEntry>
-                      <semantic:literalExpression id="_48e5d292-5c79-4d17-9531-3513426fa865">
-                        <semantic:text>null</semantic:text>
-                      </semantic:literalExpression>
-                    </semantic:contextEntry>
-                  </semantic:context>
-                </semantic:contextEntry>
-                <semantic:contextEntry>
-                  <semantic:literalExpression id="_26d346bf-d482-470c-8e4a-1d82e98ec028">
-                    <semantic:text>null</semantic:text>
-                  </semantic:literalExpression>
-                </semantic:contextEntry>
-              </semantic:context>
-            </semantic:contextEntry>
-            <semantic:contextEntry>
-              <semantic:literalExpression id="_e33262c1-bbdc-492e-b14c-2e2e527db7c6">
-                <semantic:text>null</semantic:text>
-              </semantic:literalExpression>
-            </semantic:contextEntry>
-          </semantic:context>
+          <semantic:variable id="_eabd72bd-2f02-4e56-8b43-aeacfc509663" name="class" typeRef="feel:string"/>
+          <semantic:literalExpression id="_8d46cfd6-cda1-426c-a87e-048fcaa85c28">
+            <semantic:text>"com.empire.insurance.Response"</semantic:text>
+          </semantic:literalExpression>
         </semantic:contextEntry>
         <semantic:contextEntry>
-          <semantic:literalExpression id="_a4025ef3-558e-41a1-9399-1218341aba0e">
-            <semantic:text>response</semantic:text>
+          <semantic:variable id="_20d03bcc-495e-4ff9-b60d-41b71f9180ab" name="method signature" typeRef="feel:string"/>
+          <semantic:literalExpression id="_3e57ba4d-ffcc-47b4-90c4-384814c820ae">
+            <semantic:text>"createResponse(java.lang.String, java.lang.String)"</semantic:text>
           </semantic:literalExpression>
         </semantic:contextEntry>
       </semantic:context>
     </semantic:encapsulatedLogic>
     <semantic:variable id="_2b9b35d6-f1d3-4dd9-8721-f08ca03120a0" name="Create Response" typeRef="Response"/>
   </semantic:businessKnowledgeModel>
+  <semantic:decision id="_2f6f86d0-13f4-4384-b0c7-de774a4e0522" name="Driver Eligibility">
+    <semantic:variable id="_1f24e9f2-0d74-4b4c-8810-4b137fc0dae4" name="Driver Eligibility" typeRef="Response"/>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_9b2d54d4-d4f9-485c-86e3-a5255523a6f6"/>
+    </semantic:informationRequirement>
+    <semantic:informationRequirement>
+      <semantic:requiredDecision href="#_ce0eca20-206e-4826-8a78-a065a9dceef9"/>
+    </semantic:informationRequirement>
+    <semantic:knowledgeRequirement>
+      <semantic:requiredKnowledge href="#_9f539ac1-7374-49fa-920a-ee24443aab9e"/>
+    </semantic:knowledgeRequirement>
+    <semantic:literalExpression id="_315a97ff-44cd-44b3-a1ba-7a643676cb0f">
+      <semantic:text>Combine Responses([Max Number of Drivers, All Drivers Eligible])</semantic:text>
+    </semantic:literalExpression>
+  </semantic:decision>
 </semantic:definitions>

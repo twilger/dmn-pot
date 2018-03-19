@@ -167,4 +167,23 @@ public class Response {
 		messages = new ArrayList<String>();
 		// end-user-code
 	}
+
+	/** 
+	* <!-- begin-UML-doc -->
+	* <!-- end-UML-doc -->
+	* @param status
+	* @param message
+	* @return
+	* @generated "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	*/
+	public static Response createResponse(String status, String message) {
+		// begin-user-code
+		Response retVal = new Response();
+		retVal.setStatus(status);
+		retVal.setMessages(new ArrayList<String>());
+		retVal.getMessages().add(message);
+		
+		return retVal;
+		// end-user-code
+	}
 }
